@@ -192,14 +192,17 @@ def report(error, info=''):
 def make_rf_dataset(data, eng_para, is_test=True):
     # default_value = -999.
     # data = pd.merge(left=data,right=eng_para,left_on=['RNCID_1','CellID_1'],right_on=['LAC','CI'],how='left')
-    for i in range(1, 7):
+    for i in xrange(1, 7):
         data = data.merge(eng_para, left_on=['RNCID_%d' % i, 'CellID_%d' % i], right_on=['LAC','CI'], how='left', suffixes=('', '%d' % i))
         # data['RSSI_%d'%i] = data['RSCP_%d'%i]-data['EcNo_%d'%i]
         # data = data.drop(['LAC', 'CI'], axis=1)
+        # data['RSCP_%d'%i][data['RSCP_%d'%i] == 0] = -999.
+        # data['EcNo_%d'%i][data['EcNo_%d'%i] == 0] = -999.
     data = data.fillna(-999.)
 
     feature = data[col_name+[u'经度',u'纬度',u'经度6',u'纬度6',u'经度2',u'纬度2',u'经度3',u'纬度3',u'经度4',u'纬度4',u'经度5',u'纬度5']]
     feature = feature.rename(columns={u'经度':u'经度1',u'纬度':u'纬度1'})
+    feature.replace(0, -999., inplace=True)
 
     label = data[['Longitude', 'Latitude']]
 
